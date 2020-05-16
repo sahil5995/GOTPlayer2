@@ -1,6 +1,7 @@
 package com.got.endpoint;
 
 import com.got.Utils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 
-
+@Slf4j
 @ClientEndpoint
 public class PlayerClientEndpoint {
     private Session session = null;
@@ -31,7 +32,7 @@ public class PlayerClientEndpoint {
      */
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println("Connected to other Player..!!");
+        log.info("Connected to other Player..!!");
         this.session = session;
     }
 
@@ -45,31 +46,49 @@ public class PlayerClientEndpoint {
 
         if (!message.contains(gameOver)) {
 
-            System.out.println("Player1 sent:" + message);
+            log.info("Player1 sent:" + message);
 
-            JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
-            String number = jsonObject.getString("Resulting Number");
+            String number = getNumberFromJSON(message);
 
             int rawDigit = Integer.parseInt(number);
             int result = getDivisibleBy3(rawDigit);
             int addedValue = result - rawDigit;
 
-            Thread.sleep(2000);
+            Thread.sleep(1000);
 
             int outputToSent = result / 3;
 
             if (outputToSent == 1) {
+                log.info(youWon);
                 System.out.println(youWon);
                 this.session.getAsyncRemote().sendText(gameOver);
             } else {
                 this.session.getAsyncRemote().sendText(Utils.getMessage(String.valueOf(addedValue), String.valueOf(outputToSent)));
             }
         } else {
+            log.info(youLost);
             System.out.println(youLost);
         }
     }
 
+    /**
+     * This method is extracting number from JSON String
+     *
+     * @param message JSON message
+     * @return extracted number value
+     */
+    private String getNumberFromJSON(String message) {
+        JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
+        return jsonObject.getString(Utils.resultingNumber);
+    }
 
+
+    /**
+     * This method modifies the input which is divisible by 3
+     *
+     * @param number whole number
+     * @return int
+     */
     private int getDivisibleBy3(int number) {
         return number % 3 == 0 ? number : ((number - 1) % 3 == 0 ? (number - 1) : number + 1);
     }
@@ -91,18 +110,19 @@ public class PlayerClientEndpoint {
      */
     @OnClose
     public void onClose(Session session, CloseReason reason) throws IOException {
+        log.error(reason.getReasonPhrase());
         closeSessionAndExit();
     }
 
     /**
-     * Method for handling any errors.
+     * Method for receiving any errors.
      *
      * @param session   the session which is getting closed.
      * @param throwable the error which is thrown
      */
     @OnError
     public void onError(Session session, Throwable throwable) throws IOException {
-        System.out.println("err");
+        log.error(throwable.getMessage());
         closeSessionAndExit();
     }
 

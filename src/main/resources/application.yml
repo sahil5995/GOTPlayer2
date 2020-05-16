@@ -1,4 +1,4 @@
 server:
   port: 8081
 
-serverendpoint: ws://localhost:8080/websocket/hello
+serverendpoint: ws://localhost:8082/websocket/start
