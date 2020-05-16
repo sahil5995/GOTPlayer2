@@ -1,6 +1,15 @@
 Game Of Three - Player 2
 ========================
 
+Code Setup:
+----------
+* Application is built in Spring boot framework and Maven.
+* Java 8 is used to create the project.
+* To import the application in IDE, simply import it as a Java project and set it as a Maven project.
+
+
+Introduction:
+------------
 * To start the player, go to file StartPlayer.java and run it.
 * it will start the application on port 8081 which is defined in application.yml file.
 * Now it will try to connect to Player 1 to start the game.
