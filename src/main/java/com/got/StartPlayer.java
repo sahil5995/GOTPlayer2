@@ -1,7 +1,7 @@
 package com.got;
 
 
-import com.got.endpoint.Service;
+import com.got.endpoint.GOTService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 public class StartPlayer implements CommandLineRunner {
 
     @Autowired
-    private Service service;
+    private GOTService service;
 
     public static void main(String[] args) {
         SpringApplication.run(StartPlayer.class, args);

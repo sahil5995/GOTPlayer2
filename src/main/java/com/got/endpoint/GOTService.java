@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.websocket.Session;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Random;
@@ -15,7 +19,7 @@ import java.util.Scanner;
 
 @Slf4j
 @Component
-public class Service {
+public class GOTService {
 
     @Autowired
     private RetryTemplate retryTemplate;
@@ -49,7 +53,7 @@ public class Service {
             do {
                 System.out.println("Press 1 for automatic number generation.\nPress 2 for entering number of your choice.");
                 input = sc.nextInt();
-            } while (!isValid(input));
+            } while (!isValidInput(input));
 
             int gameInputNum = inputUserChoise(sc, input);
             endpoint.sendMessage(Utils.getMessage("0", String.valueOf(gameInputNum)));
@@ -61,7 +65,7 @@ public class Service {
     /**
      * This method is used for generating input number
      *
-     * @param sc Scanner
+     * @param sc    Scanner
      * @param input input
      * @return integer number
      */
@@ -107,10 +111,58 @@ public class Service {
      * @param userInput
      * @return boolean
      */
-    private boolean isValid(int userInput) {
+    private boolean isValidInput(int userInput) {
         if (userInput > 2 || userInput < 1) {
             System.out.println("Invalid input. Please try again.");
             return false;
         } else return true;
+    }
+
+    /**
+     * This method receives the input from user and reply with new message
+     *
+     * @param message input message
+     * @param session current session
+     * @throws InterruptedException InterruptedException
+     */
+    public void sendMessageToPlayer(String message, Session session) throws InterruptedException {
+        String number = getNumberFromJSON(message);
+
+        int rawDigit = Integer.parseInt(number);
+        int result = getDivisibleBy3(rawDigit);
+        int addedValue = result - rawDigit;
+
+        Thread.sleep(1000);
+
+        int outputToSent = result / 3;
+
+        if (outputToSent == 1) {
+            log.info(Utils.YOU_WON);
+            System.out.println(Utils.YOU_WON);
+            session.getAsyncRemote().sendText(Utils.GAME_OVER);
+        } else {
+            session.getAsyncRemote().sendText(Utils.getMessage(String.valueOf(addedValue), String.valueOf(outputToSent)));
+        }
+    }
+
+    /**
+     * This method is extracting number from JSON String
+     *
+     * @param message JSON message
+     * @return extracted number value
+     */
+    public String getNumberFromJSON(String message) {
+        JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
+        return jsonObject.getString(Utils.resultingNumber);
+    }
+
+    /**
+     * This method modifies the input which is divisible by 3
+     *
+     * @param number whole number
+     * @return int
+     */
+    public int getDivisibleBy3(int number) {
+        return number % 3 == 0 ? number : ((number - 1) % 3 == 0 ? (number - 1) : number + 1);
     }
 }

@@ -4,8 +4,12 @@ import javax.json.Json;
 
 public class Utils {
 
-    public static String addedField = "Added";
-    public static String resultingNumber = "Resulting Number";
+    public static final String addedField = "Added";
+    public static final String resultingNumber = "Resulting Number";
+
+    public static final String GAME_OVER = "Game Over";
+    public static final String YOU_WON = "You won the game";
+    public static final String YOU_LOST = "You lost the game..!!";
 
     /**
      * This method converts the string into JSON message

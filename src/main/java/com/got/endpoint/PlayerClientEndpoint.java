@@ -3,11 +3,8 @@ package com.got.endpoint;
 import com.got.Utils;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.websocket.*;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 
 @Slf4j
@@ -15,9 +12,7 @@ import java.net.URI;
 public class PlayerClientEndpoint {
     private Session session = null;
 
-    private String gameOver = "Game Over";
-    private String youWon = "You won the game";
-    private String youLost = "You lost the game..!!";
+    private GOTService service;
 
     public PlayerClientEndpoint(URI endpointURI) throws IOException, DeploymentException {
         WebSocketContainer container = ContainerProvider
@@ -34,6 +29,7 @@ public class PlayerClientEndpoint {
     public void onOpen(Session session) {
         log.info("Connected to other Player..!!");
         this.session = session;
+        service = new GOTService();
     }
 
     /**
@@ -42,56 +38,17 @@ public class PlayerClientEndpoint {
      * @param message The text message
      */
     @OnMessage
-    public void onMessage(String message) throws InterruptedException, IOException {
+    public void onMessage(String message) throws InterruptedException {
 
-        if (!message.contains(gameOver)) {
-
+        if (!message.contains(Utils.GAME_OVER)) {
             log.info("Player1 sent:" + message);
-
-            String number = getNumberFromJSON(message);
-
-            int rawDigit = Integer.parseInt(number);
-            int result = getDivisibleBy3(rawDigit);
-            int addedValue = result - rawDigit;
-
-            Thread.sleep(1000);
-
-            int outputToSent = result / 3;
-
-            if (outputToSent == 1) {
-                log.info(youWon);
-                System.out.println(youWon);
-                this.session.getAsyncRemote().sendText(gameOver);
-            } else {
-                this.session.getAsyncRemote().sendText(Utils.getMessage(String.valueOf(addedValue), String.valueOf(outputToSent)));
-            }
+            service.sendMessageToPlayer(message, session);
         } else {
-            log.info(youLost);
-            System.out.println(youLost);
+            log.info(Utils.YOU_LOST);
+            System.out.println(Utils.YOU_LOST);
         }
     }
 
-    /**
-     * This method is extracting number from JSON String
-     *
-     * @param message JSON message
-     * @return extracted number value
-     */
-    private String getNumberFromJSON(String message) {
-        JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
-        return jsonObject.getString(Utils.resultingNumber);
-    }
-
-
-    /**
-     * This method modifies the input which is divisible by 3
-     *
-     * @param number whole number
-     * @return int
-     */
-    private int getDivisibleBy3(int number) {
-        return number % 3 == 0 ? number : ((number - 1) % 3 == 0 ? (number - 1) : number + 1);
-    }
 
     /**
      * Send a message.
