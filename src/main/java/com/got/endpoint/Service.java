@@ -2,7 +2,6 @@ package com.got.endpoint;
 
 
 import com.got.Utils;
-import com.got.endpoint.ChatClientEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.support.RetryTemplate;
@@ -22,14 +21,14 @@ public class Service {
     @Value("${serverendpoint}")
     private String serverEndPoint;
 
-    private ChatClientEndpoint clientEndPoint = null;
+    private PlayerClientEndpoint endpoint = null;
 
     public void callServer() throws NumberFormatException, URISyntaxException {
 
         retryTemplate.execute(Context -> {
                     try {
-                        clientEndPoint = new ChatClientEndpoint(new URI(serverEndPoint));
-                        return clientEndPoint;
+                        endpoint = new PlayerClientEndpoint(new URI(serverEndPoint));
+                        return endpoint;
                     } catch (Exception e) {
                         System.out.println("Failed to connect to other Player..!! Will try to connect 5 times.");
                         throw new URISyntaxException("Other Player is not ready yet....2", "reason");
@@ -40,7 +39,7 @@ public class Service {
                 });
 
 
-        if (clientEndPoint != null) {
+        if (endpoint != null) {
             try {
                 Scanner sc = new Scanner(System.in);
                 System.out.print("Press 1 for automatic number generation.\nPress 2 for entering number of your choice.");
@@ -54,8 +53,8 @@ public class Service {
                     gameInputNum = sc.nextInt();
                 }
                 if (gameInputNum != -1)
-                    clientEndPoint.sendMessage(Utils.getMessage("0", String.valueOf(gameInputNum)));
-            }catch (Exception e){
+                    endpoint.sendMessage(Utils.getMessage("0", String.valueOf(gameInputNum)));
+            } catch (Exception e) {
                 throw new NumberFormatException("Invalid input given");
             }
         }

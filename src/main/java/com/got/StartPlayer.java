@@ -23,11 +23,9 @@ public class StartPlayer implements CommandLineRunner {
     public void run(String... args) {
         try {
             service.callServer();
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | URISyntaxException e) {
             System.out.println(e.getMessage());
             System.exit(0);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
     }
 }
