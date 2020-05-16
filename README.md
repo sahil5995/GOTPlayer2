@@ -4,8 +4,8 @@ Game Of Three - Player 2
 * To start the player, go to file StartPlayer.java and run it.
 * it will start the application on port 8081 which is defined in application.yml file.
 * Now it will try to connect to Player 1 to start the game.
-* If player 1 is up and running, it will connect and start taking inout from user.
-* If player 1 is not up, it will retry to connect to that 5 times. If after 5 times still it is not able to connect,
+* If player 1 is up and running, it will connect and start taking input from user.
+* If player 1 is not up, it will try to connect 5 times. If after 5 times still it is not able to connect,
 it will show the error message and exit the application.
 
 
